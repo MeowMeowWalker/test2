@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Arduino Controller</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
+        button { padding: 20px 40px; font-size: 24px; margin: 10px; cursor: pointer; border-radius: 8px; border: none; color: white; }
+        .on { background-color: #2ecc71; }
+        .off { background-color: #e74c3c; }
+        #status { font-weight: bold; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+
+    <h1>Arduino Controller</h1>
+    <p>Status: <span id="status">Connecting to server...</span></p>
+    
+    <button class="on" onclick="sendVariable('1')">Turn LED ON</button>
+    <button class="off" onclick="sendVariable('0')">Turn LED OFF</button>
+
+    <script>
+        // Connect to the public broker via WebSockets
+        const client = mqtt.connect('wss://broker.hivemq.com:8000/mqtt');
+        const topic = 'Emiarduino/arduino/control'; // MUST MATCH ARDUINO TOPIC
+
+        client.on('connect', () => {
+            document.getElementById('status').innerText = 'Connected & Ready!';
+            document.getElementById('status').style.color = '#2ecc71';
+        });
+
+        function sendVariable(value) {
+            if(client.connected) {
+                client.publish(topic, value);
+                console.log("Sent variable: " + value);
+            } else {
+                alert("Not connected to broker yet.");
+            }
+        }
+    </script>
+</body>
+</html>
